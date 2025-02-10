@@ -53,7 +53,7 @@ type Client struct {
 	conn        net.PacketConn
 	timeout     time.Duration
 	retry       int
-	logger      logger
+	logger      Logger
 
 	// bufferCap is the channel capacity for each TransactionID.
 	bufferCap int
@@ -82,7 +82,7 @@ type Client struct {
 	pending map[dhcpv6.TransactionID]*pendingCh
 }
 
-type logger interface {
+type Logger interface {
 	Printf(format string, v ...interface{})
 	PrintMessage(prefix string, message *dhcpv6.Message)
 }
@@ -252,6 +252,13 @@ func (c *Client) receiveLoop() {
 
 // ClientOpt is a function that configures the Client.
 type ClientOpt func(*Client)
+
+// WithLogger logs DHCPv6 messages using provided logger.
+func WithLogger(logger Logger) ClientOpt {
+	return func(c *Client) {
+		c.logger = logger
+	}
+}
 
 // WithTimeout configures the retransmission timeout.
 //
